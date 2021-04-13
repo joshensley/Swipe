@@ -1,0 +1,23 @@
+﻿@model Swipe.Areas.User.ViewModels.ImageEditViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Edit Image";
+}
+
+@*<h1>@Model.FirebaseImagesUrl.Item1 - @Model.FirebaseImagesUrl.Item2</h1>*@
+
+<div class="row d-flex justify-content-center mt-3">
+    <div class="col">
+        <img src="@Model.FirebaseImagesUrl.Item2" alt="profile" class="img-fluid img-thumbnail" />
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col">
+        <form asp-action="Delete" asp-route-id="@Model.FirebaseImagesUrl.Item1">
+            @*<input type="hidden" asp-for="FirebaseImagesUrl.Item1" />*@
+            <input type="submit" value="Delete" class="btn btn-danger form-control" />
+        </form>
+    </div>
+</div>
+

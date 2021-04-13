@@ -1,0 +1,89 @@
+﻿@using Microsoft.AspNetCore.Identity 
+@using Swipe.Utility
+@inject UserManager<ApplicationUser> UserManager
+@model Swipe.ViewModels.InboxViewModel
+@{
+    ViewData["Title"] = "Inbox";
+
+    string userId = (await UserManager.FindByNameAsync(User.Identity.Name)).Id;
+}
+
+<h1 class="mb-3">Your Inbox</h1>
+
+<div class="album py-5 bg-light">
+    <div class="container ">
+        <div class="row">
+
+            @foreach (var item in Model.InboxApplicationUsers)
+            {
+                string messageId = userId + "~" + item.Id.ToString();
+
+                DateTime birthDate = Convert.ToDateTime(item.Birthday);
+                DateTime todayDate = DateTime.Today;
+                var age = todayDate.Year - birthDate.Year;
+                if (birthDate > todayDate.AddYears(-age)) { age--; }
+
+                var border = "";
+                var newMessage = "";
+                @if (item.NewMessage == true)
+                {
+                    border = "border-primary";
+                    newMessage = "New Message!";
+                }
+
+                string displayRelativeTime = RelativeTime.GetTime(item.SentDate);
+
+                int messageLength = item.SentMessage.Length;
+                string sentMessage = "";
+                if (messageLength < 200)
+                {
+                    sentMessage = item.SentMessage;
+                }
+                else
+                {
+                    sentMessage = item.SentMessage.Substring(0, 200) + "...";
+                }
+
+                string image = "";
+                if (item.ProfileImage != "/images/avatar/default_avatar.png")
+                {
+                    image = item.FirebaseProfileImageURL;
+                }
+                else
+                {
+                    image = item.ProfileImage;
+                }
+
+
+                <div class="col-12">
+                    <div class="card mb-3 @border">
+
+                        <div class="row g-0">
+                            <div class="col-md-3">
+                                <a asp-area="" asp-controller="Message" asp-action="Index" asp-route-id="@messageId">
+                                    <img style="width: 100%; height: 200px; object-fit: cover;" src="@image" alt="avatar" />
+                                </a>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card-body">
+                                    <div>
+                                        <h5 class="card-title" style="margin-bottom:-4px;">
+                                            @item.FirstName <span class="text-primary">@newMessage</span>
+                                        </h5>
+                                        <small class="text-muted">@item.SentDate.ToLongDateString() </small>
+                                    </div>
+                                    
+                                    <p class="card-text">@sentMessage</p>
+                                    <p class="card-text"><small class="text-muted">Sent @displayRelativeTime</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+
+        </div>
+    </div>
+</div>
+

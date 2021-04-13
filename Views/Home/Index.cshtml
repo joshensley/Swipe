@@ -1,0 +1,180 @@
+﻿@using Swipe.Utility
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model Swipe.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Home Page";
+
+    var userId = (await UserManager.FindByNameAsync(User.Identity.Name)).Id;
+
+    DateTime featuredUserBirthDate = Convert.ToDateTime(Model.FeaturedUser.Birthday);
+    DateTime featuredUserTodayDate = DateTime.Today;
+    var featuredUserAge = featuredUserTodayDate.Year - featuredUserBirthDate.Year;
+    if (featuredUserBirthDate > featuredUserTodayDate.AddYears(-featuredUserAge)) { featuredUserAge--; }
+
+}
+
+@if (Model.PaginatedListUsers.Count() > 0)
+{
+    <div class="justify-content-center">
+        <div class="card mb-3" style="max-width: 1080px;">
+            <div class="row g-0">
+                <div class="col-md-4">
+
+                    @{
+                        var singleImage = "";
+                        if (Model.FeaturedUser.FirebaseProfileImageURL == null)
+                        {
+                            singleImage = Model.FeaturedUser.ProfileImage;
+                        }
+                        else
+                        {
+                            singleImage = Model.FeaturedUser.FirebaseProfileImageURL;
+                        }
+                    }
+
+                    <img class="card-img-top"
+                         style="width: 100%; height: 250px; object-fit: cover;"
+                         src="@singleImage"
+                         alt="Card image cap">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
+                                <h5 class="card-title">@Model.FeaturedUser.FirstName <i class="fas fa-circle" style="font-size:medium"></i> @featuredUserAge</h5>
+
+                                @if (Model.FeaturedUser.About != null)
+                                {
+                                    <p class="card-text mb-sm-2 mb-2">@Model.FeaturedUser.About.AboutMe</p>
+                                }
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
+                                <div class="row">
+                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-6 col-6 mb-3">
+                                        <form asp-action="Like">
+                                            <input type="hidden" asp-for="Liked.ApplicationUserID" value="@userId" />
+                                            <input type="hidden" asp-for="Liked.ApplicationUserLikedID" value="@Model.FeaturedUser.Id" />
+                                            <div class="form-group">
+                                                <input type="submit" value="Like" class="btn btn-outline-danger form-control" />
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-6 col-6 mb-3">
+                                        <form asp-action="Pass">
+                                            <input type="hidden" asp-for="Pass.ApplicationUserID" value="@userId" />
+                                            <input type="hidden" asp-for="Pass.ApplicationUserPassID" value="@Model.FeaturedUser.Id" />
+                                            <div class="form-group">
+                                                <input type="submit" value="Pass" class="btn btn-outline-dark form-control" />
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    @*<div class="col-xl-12 col-lg-12 col-md-12 col-sm-6 col-6 mb-3">
+                                        <a class="btn btn-outline-dark form-control"
+                                            asp-area=""
+                                            asp-action="Index"
+                                            asp-controller="Profile"
+                                            asp-route-id="@Model.FeaturedUser.Id">
+                                            <i class="fas fa-times"></i> Pass (change route)
+                                        </a>
+                                    </div>*@
+                                    <div class="col-12">
+                                        <a class="btn btn-outline-info form-control"
+                                            asp-area=""
+                                            asp-action="Index"
+                                            asp-controller="Profile"
+                                            asp-route-id="@Model.FeaturedUser.Id">
+                                            <i class="fas fa-user"></i> View
+                                        </a>
+                                    </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                @foreach (var item in Model.PaginatedListUsers)
+                {
+                    DateTime birthDate = Convert.ToDateTime(item.Birthday);
+                    DateTime todayDate = DateTime.Today;
+                    var age = todayDate.Year - birthDate.Year;
+                    if (birthDate > todayDate.AddYears(-age)) { age--; }
+
+                    var image = "";
+                    if (item.FirebaseProfileImageURL == null)
+                    {
+                        image = item.ProfileImage;
+                    }
+                    else
+                    {
+                        image = item.FirebaseProfileImageURL;
+                    }
+
+                    <div class="col-md-4">
+                        <div class="card mb-4 shadow-sm">
+                            <img class="card-img-top" 
+                                 style="width: 100%; height: 250px; object-fit: cover;" 
+                                 src="@image" 
+                                 alt="Card image cap">
+                            <div class="card-body">
+                                <p class="card-text">@item.FirstName <small><i class="fas fa-circle" style="font-size:medium"></i></small> @Html.DisplayTextFor(model => age)</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a class="btn btn-sm btn-outline-info form-control"
+                                           asp-area=""
+                                           asp-action="Index"
+                                           asp-controller="Profile"
+                                           asp-route-id="@item.Id">
+                                            <i class="fas fa-user"></i> View
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @{
+                var prevDisabled = !Model.PaginatedListUsers.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.PaginatedListUsers.HasNextPage ? "disabled" : "";
+            }
+
+
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-left">
+                    <li class="page-item @prevDisabled">
+                        <a asp-action="Index"
+                           asp-route-pageNumber="@(Model.PaginatedListUsers.PageIndex - 1)"
+                           class="page-link"
+                           tabindex="-1"
+                           aria-disabled="true">
+                            Previous
+                        </a>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a asp-action="Index"
+                           asp-route-pageNumber="@(Model.PaginatedListUsers.PageIndex + 1)"
+                           class="page-link">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+}
+else
+{
+    <div>
+        No users to display. Please adjust your preferences filter.
+    </div>
+}

@@ -1,0 +1,112 @@
+﻿@model Swipe.Areas.User.ViewModels.ImageViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Upload Your Pictures</h1>
+</div>
+
+<div class="border container" style="padding: 30px">
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+
+        <div class="form-group row">
+            <div class="offset-xl-3 col-xl-6 offset-lg-3 col-lg-6 col-md-12 col-sm-12 col-12">
+
+                @if (ViewData["ErrorMessage"] != null)
+                {
+                <div class="alert alert-danger" role="alert">
+                    @ViewData["ErrorMessage"]
+                    <div class="alert alert-success" role="alert">
+                        @ViewData["Message"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                }
+
+                @if (ViewData["Message"] != null)
+                {
+                    <div class="alert alert-success" role="alert">
+                        @ViewData["Message"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <input type="hidden" asp-for="ApplicationUserID" value="@Model.ApplicationUser.Id" />
+        <div class="form-group row">
+            <div class="offset-xl-3 col-xl-6 offset-lg-3 col-lg-6 col-md-12 col-sm-12 col-12">
+                <div class="custom-file">
+                    <input asp-for="FileUpload" type="file" class="custom-file-input" id="image-file" />
+                    <label class="custom-file-label" for="customFile" id="choose-image">Choose Image</label>
+                    <small class="text-muted"><span asp-validation-for="FileUpload" class="text-danger"></span></small>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-xl-3 col-xl-6 offset-lg-3 col-lg-6 col-md-12 col-sm-12 col-12">
+                <input type="submit" value="Submit" class="btn btn-primary form-control" id="image-submit" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-xl-3 col-xl-6 offset-lg-3 col-lg-6 col-md-12 col-sm-12 col-12">
+                <div class="text-center" id="spinner"></div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if (Model.FirebaseImagesURL.Count > 0)
+{
+    <div class="mt-3">
+        <div class="row d-flex justify-content-center">
+
+            @foreach (var URL in Model.FirebaseImagesURL)
+            {
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2">
+                    <a asp-area="User"
+                       asp-controller="Image"
+                       asp-action="Edit"
+                       asp-route-id="@URL.Item1"
+                       asp-route-imageTitle="@URL.Item3"
+                       asp-route-userId="@Model.ApplicationUser.Id">
+
+                        <img src="@URL.Item2" alt="profile" class="img-fluid img-thumbnail" />
+
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+
+
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Changes label to "Image Loaded" if file is loaded
+        $("#image-file").on("change", function () {
+            var $fileLength = $("#image-file").get(0).files.length;
+            if ($fileLength > 0) {
+                $("#choose-image").html("Image loaded");
+            }
+        });
+
+        // Shows spinner and "Submitting..." after form is submited and valid  
+        $("form").submit(function () {
+            if ($(this).valid() == true) {
+                $("#spinner").append('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+                $("#image-submit").attr("value", "Submitting...");
+            }
+        })
+    </script>
+}

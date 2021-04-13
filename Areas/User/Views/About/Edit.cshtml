@@ -1,0 +1,61 @@
+﻿@model Swipe.Areas.User.Models.About
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>About</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success" role="alert">
+                @ViewBag.Message
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            </div>
+        }
+
+
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group">
+                <label asp-for="AboutMe" class="control-label"></label>
+                <textarea asp-for="AboutMe" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="AboutMe" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WhatImLookingFor" class="control-label"></label>
+                <textarea asp-for="WhatImLookingFor" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="WhatImLookingFor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IValue" class="control-label"></label>
+                <textarea asp-for="IValue" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="IValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastShowBingeWatched" class="control-label"></label>
+                <textarea asp-for="LastShowBingeWatched" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="LastShowBingeWatched" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ICouldProbablyBeatYouAt" class="control-label"></label>
+                <textarea asp-for="ICouldProbablyBeatYouAt" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="ICouldProbablyBeatYouAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

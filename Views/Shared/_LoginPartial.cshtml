@@ -1,0 +1,68 @@
+﻿@using Swipe.Models
+@using Swipe.Data
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext _db
+
+@{ 
+    string userName = "";
+    string userId = "";
+    int newMatchesCount = 0;
+    int newMessagesCount = 0;
+    int newLikedCount = 0;
+    @if (User.Identity.IsAuthenticated)
+    {
+        var user = await UserManager.FindByNameAsync(User.Identity.Name);
+        var newMatches = await _db.Liked.Where(x => x.ApplicationUserID == user.Id && x.IsNewMatch == true).ToListAsync();
+        userId = user.Id;
+        userName = user.FirstName;
+        newMatchesCount = newMatches.Count();
+
+        var newMessages = await _db.Liked.Where(x => x.ApplicationUserID == user.Id && x.NewMessage == true).ToListAsync();
+        newMessagesCount = newMessages.Count();
+
+        var newLiked= await _db.Liked.Where(x => x.ApplicationUserID == user.Id).ToListAsync();
+        newLikedCount = newLiked.Count();
+    }
+
+}
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" href="#" title="Manage">@userName</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Liked" asp-action="Index" asp-route-id="@userId">
+                <i class="far fa-thumbs-up" style="color:dodgerblue;"></i> <span class="badge" style="color:white; background-color:dodgerblue">@newLikedCount</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Match" asp-action="Index" asp-route-id="@userId">
+                <i class="fas fa-heart" style="color:hotpink;"></i> <span class="badge" style="color:white; background-color:hotpink">@newMatchesCount</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Inbox" asp-action="Index" asp-route-id="@userId">
+                <i class="fas fa-comments" style="color:teal;"></i> <span class="badge" style="color:white; background-color:teal;">@newMessagesCount</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
+</ul>

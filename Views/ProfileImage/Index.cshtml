@@ -1,0 +1,35 @@
+﻿@model Swipe.ViewModels.ProfileImageModel
+@{
+    ViewData["Title"] = "Edit Profile Image";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit Profile Image</h1>
+<div class="mt-3">
+    <form asp-action="Create">
+        <div class="row d-flex justify-content-center">
+
+            @foreach (var item in Model.FirebaseImageURL)
+            {
+                var border = "";
+                @if (item.Item3 == Model.ApplicationUser.ProfileImage)
+                {
+                    border = "border-primary";
+                }
+
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2 mb-4">
+                    <img src="@item.Item2" alt="profile" class="img-fluid img-thumbnail @border" />
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" value="@item.Item3" name="selectedImage" id="flexRadioDefault1" />
+                    </div>
+                </div>
+
+            }
+
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-outline-primary form-control" />
+            </div>
+
+        </div>
+    </form>
+</div>

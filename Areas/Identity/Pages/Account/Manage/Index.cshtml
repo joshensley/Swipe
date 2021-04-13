@@ -1,0 +1,107 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<h3></h3>
+
+<h4>@ViewData["Title"]</h4>
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+
+        @if (ViewData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show " role="alert">
+                @ViewData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (ViewData["FailMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show " role="alert">
+                @ViewData["FailMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+
+        <form id="profile-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Input.UserName"></label>
+                <input asp-for="Input.UserName" class="form-control" disabled />
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.FirstName"></label>
+                <input asp-for="Input.FirstName" class="form-control" />
+                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Gender"></label>
+                <select class="form-select form-control" aria-label="Default select example" asp-for="Input.Gender">
+                    <option value="" selected>--- Select Gender ---</option>
+                    @foreach (var item in Model.Genders)
+                    {
+                        <option value="@(item.Type)">@item.Type</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.Gender" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Birthday"></label>
+                <input asp-for="Input.Birthday" class="form-control" />
+                <span asp-validation-for="Input.Birthday" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Ethnicity"></label>
+                <select class="form-select form-control" aria-label="Default select example" asp-for="Input.Ethnicity">
+                    <option value="" selected>--- Select Ethnicity ---</option>
+                    @foreach (var item in Model.Ethnicities)
+                    {
+                        <option value="@(item.Type)">@item.Type</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.Ethnicity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.HeightID"></label>
+                <select class="form-select form-control" aria-label="Default select example" asp-for="Input.HeightID">
+                    <option value="" selected>--- Select Height ---</option>
+                    @foreach (var item in Model.Heights)
+                    {
+                        <option value="@(item.ID)">@item.DisplayHeight</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.HeightID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-6">
+                    <img style="width: 100px; height: 100px; border-radius:50%; object-fit: cover;" src="@Model.Input.Avatar" alt="avatar" />
+                </div>
+                <div class="col-6">
+                    <button class="btn btn-block btn-primary"
+                            asp-area=""
+                            asp-controller="ProfileImage"
+                            asp-action="Index">
+                        Edit Profile Image
+                    </button>
+                </div>
+
+
+            </div>
+
+
+            <button id="update-profile-button" type="submit" class="btn btn-primary mt-3">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

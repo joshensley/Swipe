@@ -1,0 +1,222 @@
+﻿@model Swipe.ViewModels.ProfileViewModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var userId = (await UserManager.FindByNameAsync(User.Identity.Name)).Id;
+
+    DateTime birthDate = Convert.ToDateTime(Model.ApplicationUser.Birthday);
+    DateTime todayDate = DateTime.Today;
+    var userAge = todayDate.Year - birthDate.Year;
+    if (birthDate > todayDate.AddYears(-userAge)) { userAge--; }
+}
+
+<div class="row">
+    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+        <div class="pb-2 mt-4">
+
+            @{ 
+                var image = "";
+                if(Model.ApplicationUser.FirebaseProfileImageURL == null)
+                {
+                    image = Model.ApplicationUser.ProfileImage;
+                }
+                else
+                {
+                    image = Model.ApplicationUser.FirebaseProfileImageURL;
+                }
+
+            }
+
+            <img src="@image" style="width: 100%; height: 450px; object-fit: cover;" alt="profile picture" class="img-thumbnail img-fluid">
+        </div>
+
+
+
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 justify-content-center">
+        
+        <div class="pb-0 mt-3">
+            <div class="row">
+                
+                <ul class=" col-12 list-group list-group-flush text-center" style="font-size:x-large;">
+                    <li class="list-group-item"><strong><i class="fas fa-signature"></i></strong> @Model.ApplicationUser.FirstName</li>
+                    <li class="list-group-item"><strong><i class="fas fa-birthday-cake"></i> </strong> @userAge</li>
+                    <li class="list-group-item"><strong><i class="fas fa-restroom"></i> </strong>@Model.ApplicationUser.Gender</li>
+                    <li class="list-group-item"><strong><i class="fas fa-globe-americas"></i> </strong>@Model.ApplicationUser.Ethnicity</li>
+                    <li class="list-group-item"><strong><i class="fas fa-arrows-alt-v"></i> </strong>@Model.ApplicationUser.Height.DisplayHeight</li>
+                </ul>
+                
+            </div>
+           
+
+            @if (ViewData["AlreadyLiked"].ToString() == "false")
+            {
+                <div class="row mb-2 mt-3">
+                    <div class="col-6">
+                        <form asp-action="Like">
+                            <input type="hidden" asp-for="Liked.ApplicationUserID" value="@userId" />
+                            <input type="hidden" asp-for="Liked.ApplicationUserLikedID" value="@Model.ApplicationUser.Id" />
+                            <div class="form-group">
+                                <input type="submit" value="Like" class="btn btn-outline-danger form-control" />
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="col-6">
+                        <form asp-action="Pass">
+                            <input type="hidden" asp-for="Pass.ApplicationUserID" value="@userId" />
+                            <input type="hidden" asp-for="Pass.ApplicationUserPassID" value="@Model.ApplicationUser.Id" />
+                            <div class="form-group">
+                                <input type="submit" value="Pass" class="btn btn-outline-dark form-control" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="pb-2 mt-1">
+    <div class="row d-flex justify-content-center">
+        @if (Model.FirebaseImagesURL.Count == 0)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2">
+                    <img src="~/images/avatar/solid_grey.jpg" alt="profile picture" class="img-thumbnail img-fluid">
+                </div>
+            }
+        }
+        else if (Model.FirebaseImagesURL.Count == 1)
+        {
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2">
+                <img src="@Model.FirebaseImagesURL[0]" alt="profile" class="img-fluid img-thumbnail" />
+            </div>
+
+            for (int i = 0; i < 2; i++)
+            {
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2">
+                    <img src="~/images/avatar/solid_grey.jpg" alt="profile picture" class="img-thumbnail img-fluid">
+                </div>
+            }
+        }
+        else if (Model.FirebaseImagesURL.Count == 2)
+        {
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2">
+                <img src="@Model.FirebaseImagesURL[0]" alt="profile" class="img-fluid img-thumbnail" />
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2">
+                <img src="@Model.FirebaseImagesURL[1]" alt="profile" class="img-fluid img-thumbnail" />
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2">
+                <img src="~/images/avatar/solid_grey.jpg" alt="profile picture" class="img-thumbnail img-fluid">
+            </div>
+        }
+        else
+        {
+            @for (int i = 0; i < 3; i++)
+            {
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 mt-2">
+                    <img src="@Model.FirebaseImagesURL[i]" alt="profile" class="img-fluid img-thumbnail" />
+                </div>
+            }
+        }
+
+        @if (Model.FirebaseImagesURL.Count > 0 && Model.FirebaseImagesURL.Count <= 3)
+        {
+            <div class="mt-3 col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 text-center align-self-center">
+                <a type="button" class="btn btn-block btn-primary" asp-area="" asp-controller="Images" asp-action="Index" asp-route-id="@Model.ApplicationUser.Id">
+                   View Images
+                </a>
+            </div>
+        }
+
+        @if (Model.FirebaseImagesURL.Count > 3)
+        {
+            <div class="mt-3 col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 text-center align-self-center">
+                <a type="button" class="btn btn-block btn-lg btn-primary" asp-area="" asp-controller="Images" asp-action="Index" asp-route-id="@Model.ApplicationUser.Id">
+                    @(Model.FirebaseImagesURL.Count - 3)+ Images
+                </a>
+            </div>
+        }
+
+
+
+
+
+    </div>
+</div>
+
+
+<div class="row pb-5">
+    <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 col-12">
+        <div class="pb-5 mt-2 bg-light ">
+            <div class="row pt-5 mb-3">
+                <div class="offset-2 col-8 d-flex justify-content-center">
+                    <div class="card" style="width: 40rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayNameFor(item => item.ApplicationUser.About.AboutMe)</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Back Story</h6>
+                            <p class="card-text">@Html.DisplayFor(item => item.ApplicationUser.About.AboutMe)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="offset-2 col-8 d-flex justify-content-center">
+                    <div class="card" style="width: 40rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayNameFor(item => item.ApplicationUser.About.WhatImLookingFor)</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Dating</h6>
+                            <p class="card-text">@Html.DisplayFor(item => item.ApplicationUser.About.WhatImLookingFor)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="offset-2 col-8 d-flex justify-content-center">
+                    <div class="card" style="width: 40rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayNameFor(item => item.ApplicationUser.About.IValue)</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Standards</h6>
+                            <p class="card-text">@Html.DisplayFor(item => item.ApplicationUser.About.IValue)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="offset-2 col-8 d-flex justify-content-center">
+                    <div class="card" style="width: 40rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayNameFor(item => item.ApplicationUser.About.LastShowBingeWatched)</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Entertainment</h6>
+                            <p class="card-text">@Html.DisplayFor(item => item.ApplicationUser.About.LastShowBingeWatched)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="offset-2 col-8 d-flex justify-content-center">
+                    <div class="card" style="width: 40rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayNameFor(item => item.ApplicationUser.About.ICouldProbablyBeatYouAt)</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Competition</h6>
+                            <p class="card-text">@Html.DisplayFor(item => item.ApplicationUser.About.ICouldProbablyBeatYouAt)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-8 col-lg-8 col-md-0 col-sm-0 col-0">
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,116 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model Swipe.ViewModels.MatchViewModel
+@{
+    ViewData["Title"] = "Your Matches";
+
+    string userId = (await UserManager.FindByNameAsync(User.Identity.Name)).Id;
+}
+
+<h1 class="mb-3">Your Matches</h1>
+
+@if (Model.PaginatedListUsers.Count() > 0)
+{
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                @foreach (var item in Model.PaginatedListUsers)
+                {
+                    string messageId = userId + "~" + item.Id.ToString();
+
+                    DateTime birthDate = Convert.ToDateTime(item.Birthday);
+                    DateTime todayDate = DateTime.Today;
+                    var age = todayDate.Year - birthDate.Year;
+                    if (birthDate > todayDate.AddYears(-age)) { age--; }
+
+                    var cardOutline = "";
+                    var newMatch = "";
+                    @foreach (var likes in Model.NewMatchedUser)
+                    {
+                        if (likes.ApplicationUserLikedID == item.Id)
+                        {
+                            cardOutline = "border-dark";
+                            newMatch = "New Match!"; 
+                            break;
+                        }
+                    }
+
+                    var image = "";
+                    if (item.FirebaseProfileImageURL == null)
+                    {
+                        image = item.ProfileImage;
+                    }
+                    else
+                    {
+                        image = item.FirebaseProfileImageURL;
+                    }
+
+                    <div class="col-md-4">
+                        <div class="card @cardOutline mb-4 shadow-sm" style="border: @cardOutline">
+                            <img class="card-img-top"
+                                 style="width: 100%; height: 250px; object-fit: cover;"
+                                 src="@image" 
+                                 alt="Card image cap">
+                            <div class="card-body">
+                                <p class="card-text">@item.FirstName <small><i class="fas fa-circle" style="font-size:medium"></i></small> @Html.DisplayTextFor(model => age) <strong style="color:hotpink;">@newMatch</strong></p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-grid gap-2 d-md-block">
+                                        
+                                        <div class="btn-group">
+                                            <a class="btn btn-sm btn-outline-primary form-control"
+                                               asp-area=""
+                                               asp-action="Index"
+                                               asp-controller="Message"
+                                               asp-route-id="@messageId">
+                                                <i class="fas fa-paper-plane"></i> Message
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <form asp-action="Unlike" asp-route-id="@messageId">
+                                            <input type="submit" value="Unlike" class="btn btn-sm btn-outline-dark form-control" />
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @{
+                var prevDisabled = !Model.PaginatedListUsers.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.PaginatedListUsers.HasNextPage ? "disabled" : "";
+            }
+
+
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-left">
+                    <li class="page-item @prevDisabled">
+                        <a asp-action="Index"
+                           asp-route-pageNumber="@(Model.PaginatedListUsers.PageIndex - 1)"
+                           class="page-link"
+                           tabindex="-1"
+                           aria-disabled="true">
+                            Previous
+                        </a>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a asp-action="Index"
+                           asp-route-pageNumber="@(Model.PaginatedListUsers.PageIndex + 1)"
+                           class="page-link">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+}
+else
+{
+    <div>
+        You don't have any matches yet!
+    </div>
+}

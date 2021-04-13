@@ -1,0 +1,94 @@
+﻿@model Swipe.Areas.User.Models.Preferences
+@{
+    ViewData["Title"] = "Edit Preferences";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit User Preferences</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-5">
+
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success" role="alert">
+                @ViewBag.Message
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            </div>
+        }
+
+        @if (ViewBag.SelectPreferences != null)
+        {
+            <div class="alert alert-primary" role="alert">
+                @ViewBag.SelectPreferences
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            </div>
+        }
+
+
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MinAge" class="control-label"></label>
+                <input asp-for="MinAge" class="form-control" />
+                <span asp-validation-for="MinAge" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxAge" class="control-label"></label>
+                <input asp-for="MaxAge" class="form-control" />
+                <span asp-validation-for="MaxAge" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HeightID" class="control-label"></label>
+                <select class="form-select form-control" aria-label="Default select example" asp-for="HeightID">
+                    <option value="" selected>--- No Preference ---</option>
+                    @foreach (var height in ViewBag.Height)
+                    {
+                        <option value="@(height.ID)">@height.DisplayHeight</option>
+                    }
+                </select>
+                <span asp-validation-for="HeightID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="GenderID" class="control-label"></label>
+                <select class="form-select form-control" aria-label="Default select example" asp-for="GenderID">
+                    <option value="" selected>--- No Preference ---</option>
+                    @foreach (var gender in ViewBag.Gender)
+                    {
+                        <option value="@(gender.ID)">@gender.Type</option>
+                    }
+                </select>
+                <span asp-validation-for="GenderID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Ethnicity</label>
+                <ul class="list-group list-group-flush">
+                    @{
+                        List<Swipe.Areas.User.ViewModels.EthnicityPreferencesData> ethnicities = ViewBag.Ethnicity;
+
+                        foreach (var ethnicity in ethnicities)
+                        {
+                            <li class="list-group-item">
+                                <input type="checkbox"
+                                       name="selectedEthnicities"
+                                       value="@ethnicity.EthnicityID"
+                                       @(Html.Raw(ethnicity.Assigned ? "checked=\"checked\"" : "")) />
+                                @ethnicity.Type
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
